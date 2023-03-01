@@ -12,12 +12,20 @@ hiper_glm = function(design, outcome, model = "linear", option = list()){
 
     if (model == "linear"){
 
-        if (is.null(option$mle_finder == "pseudo_inv")){
+        if (is.null(option$mle_finder)) {
+            stop("Please specify MLE finder: 'pseudo_inv' or 'bfgs'.")
+        }
+
+        else if (option$mle_finder == "pseudo_inv"){
             hglm_out$coefficients = find_mle_linear_pseudo_inv(design, outcome)
         }
 
-        else {
+        else if (option$mle_finder == "bfgs") {
             hglm_out$coefficients = find_mle_linear_bfgs(design, outcome)
+        }
+
+        else {
+            stop("MLE finder not supported. Currently available: 'pseudo_inv' or 'bfgs'.")
         }
     }
 
