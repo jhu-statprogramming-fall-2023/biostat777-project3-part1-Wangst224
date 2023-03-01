@@ -8,9 +8,9 @@ hiper_glm = function(design, outcome, model = "linear", option = list()){
     }
 
     hglm_out = list()
-    class(hglm_out) = 'hglm'
+    class(hglm_out) = "hglm"
 
-    if (model == 'linear'){
+    if (model == "linear"){
 
         if (is.null(option$mle_finder == "pseudo_inv")){
             hglm_out$coefficients = find_mle_linear_pseudo_inv(design, outcome)
