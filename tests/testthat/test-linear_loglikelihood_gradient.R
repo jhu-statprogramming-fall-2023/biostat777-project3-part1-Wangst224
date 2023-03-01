@@ -1,5 +1,3 @@
-source("help.R")
-
 test_that("linear regression log likelihood gradient", {
 
     n_obs = 32

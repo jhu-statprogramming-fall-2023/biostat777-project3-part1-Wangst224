@@ -1,5 +1,3 @@
-source("help.R")
-
 test_that("MLE from BFGS and pseudo inverse", {
 
     n_obs = 32

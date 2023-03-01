@@ -1,5 +1,3 @@
-source("help.R")
-
 test_that("all are close", {
     # Case 1: correctly return TRUE
 
