@@ -1,6 +1,6 @@
 #' @export
 coef.hglm = function(hglm_out){
-    warning("To be implemented")
+    hglm_out$coefficients
 }
 
 
