@@ -11,12 +11,8 @@ test_that("linear regression log likelihood gradient", {
         log_likelihood_linear(data_list$design, data_list$outcome, x)
     }, data_list$coef_true)
 
-
-    abs_tol = 1e-6
-    rel_tol = 1e-6
-
     expect_true(are_all_close(
-        LL_gradient, LL_gradient_numerical, abs_tol = abs_tol, rel_tol = rel_tol
+        LL_gradient, LL_gradient_numerical, abs_tol = 1e-6, rel_tol = 1e-6
     ))
 
 })
