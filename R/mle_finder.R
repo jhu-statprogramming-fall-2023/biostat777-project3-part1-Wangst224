@@ -16,6 +16,9 @@ find_mle_linear_bfgs = function(design, outcome) {
 
 find_mle_linear_pseudo_inv = function(design, outcome) {
 
-    chol2inv(chol(t(design) %*% design)) %*% t(design) %*% outcome
+    A = crossprod(design)
+    b = crossprod(design, outcome)
+    upper = chol(A)
 
+    as.vector(backsolve(upper, backsolve(upper, b, transpose = TRUE)))
 }
