@@ -1,7 +1,7 @@
 find_mle_linear_bfgs = function(design, outcome) {
 
     n_pred = ncol(design)
-    coeff_init = rnorm(n_pred)
+    coeff_init = rep(1, n_pred)
 
     op_result = optim(coeff_init,
                       log_likelihood_linear,
