@@ -8,5 +8,16 @@ log_likelihood_linear = function(design, outcome, coeff, noise_var = 1){
 log_likelihood_linear_gradient = function(design, outcome, coeff, noise_var = 1){
 
     1/noise_var * t(design) %*% (outcome - design %*% coeff)
+}
 
+log_likelihood_logit = function(design, outcome, coeff) {
+
+    prob = exp(design %*% coeff) / (1 + exp(design %*% coeff))
+    sum(outcome * log(prob) + (1 - outcome) * log(1 - prob))
+}
+
+log_likelihood_logit_gradient = function(design, outcome, coeff) {
+
+    prob = exp(design %*% coeff) / (1 + exp(design %*% coeff))
+    t(design) %*% (outcome - prob)
 }
