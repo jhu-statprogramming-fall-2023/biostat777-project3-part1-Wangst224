@@ -21,3 +21,9 @@ log_likelihood_logit_gradient = function(design, outcome, coeff) {
     prob = exp(design %*% coeff) / (1 + exp(design %*% coeff))
     t(design) %*% (outcome - prob)
 }
+
+log_likelihood_logit_hessian = function(design, outcome, coeff) {
+
+    prob = as.vector(exp(design %*% coeff) / (1 + exp(design %*% coeff)))
+    - t(design) %*% diag(prob * (1 - prob)) %*% design
+}
