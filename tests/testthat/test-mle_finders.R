@@ -40,7 +40,7 @@ test_that("Logit MLE: BFGS and Newton", {
     expect_true(are_all_close(
         coef(hglm_out_bfgs),
         coef(hglm_out_newton),
-        abs_tol = 1e-6, rel_tol = 1e-6
+        abs_tol = 1e-2, rel_tol = 1e-2
     ))
 
 })

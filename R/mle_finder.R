@@ -38,3 +38,19 @@ find_mle_logit_bfgs = function(design, outcome) {
 
     return(op_result$par)
 }
+
+find_mle_logit_newton = function(design, outcome, max_iter = 10000, init = rep(0, ncol(design))) {
+
+    coeff = init
+    iter = 0
+
+    while (iter < max_iter) {
+        hessian = log_likelihood_logit_hessian(design, outcome, coeff)
+        gradient = log_likelihood_logit_gradient(design, outcome, coeff)
+        coeff = coeff - solve(hessian) %*% gradient
+
+        iter = iter + 1
+    }
+
+    return(as.vector(coeff))
+}
