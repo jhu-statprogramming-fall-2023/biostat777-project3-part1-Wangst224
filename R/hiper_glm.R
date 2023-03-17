@@ -21,7 +21,7 @@ hiper_glm = function(design, outcome, model = "linear", option = list()){
         }
 
         else if (option$mle_finder == "bfgs") {
-            hglm_out$coefficients = find_mle_linear_bfgs(design, outcome)
+            hglm_out$coefficients = find_mle_bfgs(design, outcome, log_likelihood_linear, log_likelihood_linear_gradient)
         }
 
         else {
@@ -40,7 +40,7 @@ hiper_glm = function(design, outcome, model = "linear", option = list()){
         }
 
         else if (option$mle_finder == "bfgs") {
-            hglm_out$coefficients = find_mle_logit_bfgs(design, outcome)
+            hglm_out$coefficients = find_mle_bfgs(design, outcome, log_likelihood_logit, log_likelihood_logit_gradient)
         }
 
         else {
