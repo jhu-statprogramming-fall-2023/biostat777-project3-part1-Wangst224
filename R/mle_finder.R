@@ -1,11 +1,11 @@
-find_mle_linear_bfgs = function(design, outcome) {
+find_mle_bfgs = function(design, outcome, func_likelihood, func_gradient) {
 
     n_pred = ncol(design)
     coeff_init = rep(1, n_pred)
 
     op_result = optim(coeff_init,
-                      log_likelihood_linear,
-                      log_likelihood_linear_gradient,
+                      func_likelihood,
+                      func_gradient,
                       design = design,
                       outcome = outcome,
                       method = "BFGS",
@@ -21,4 +21,35 @@ find_mle_linear_pseudo_inv = function(design, outcome) {
     upper = chol(A)
 
     as.vector(backsolve(upper, backsolve(upper, b, transpose = TRUE)))
+}
+
+find_mle_logit_newton = function(design, outcome, max_iter = 100, init = rep(0, ncol(design))) {
+
+    coeff = init
+    iter = 0
+    abs_tol = 1e-6
+    rel_tol = 1e-6
+
+    while (iter < max_iter) {
+        pre_loglikelihood = log_likelihood_logit(design, outcome, coeff)
+
+        hessian = log_likelihood_logit_hessian(design, outcome, coeff)
+        gradient = log_likelihood_logit_gradient(design, outcome, coeff)
+        coeff = coeff - solve(hessian, gradient)
+
+        post_loglikelihood = log_likelihood_logit(design, outcome, coeff)
+
+        if (are_all_close(pre_loglikelihood, post_loglikelihood, abs_tol = abs_tol, rel_tol =  rel_tol)) {
+            break
+        }
+
+        iter = iter + 1
+
+    }
+
+    if (iter == max_iter) {
+        warning("Max iteration reached without convergence.")
+    }
+
+    return(as.vector(coeff))
 }
