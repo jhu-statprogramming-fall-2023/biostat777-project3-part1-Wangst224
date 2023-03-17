@@ -23,7 +23,7 @@ find_mle_linear_pseudo_inv = function(design, outcome) {
     as.vector(backsolve(upper, backsolve(upper, b, transpose = TRUE)))
 }
 
-find_mle_logit_newton = function(design, outcome, max_iter = 10000, init = rep(0, ncol(design))) {
+find_mle_logit_newton = function(design, outcome, max_iter = 100, init = rep(0, ncol(design))) {
 
     coeff = init
     iter = 0
@@ -35,13 +35,11 @@ find_mle_logit_newton = function(design, outcome, max_iter = 10000, init = rep(0
 
         hessian = log_likelihood_logit_hessian(design, outcome, coeff)
         gradient = log_likelihood_logit_gradient(design, outcome, coeff)
-        coeff = coeff - solve(hessian) %*% gradient
+        coeff = coeff - solve(hessian, gradient)
 
         post_loglikelihood = log_likelihood_logit(design, outcome, coeff)
-        abs_change = abs(post_loglikelihood - pre_loglikelihood)
-        rel_change = abs_change / abs(pre_loglikelihood)
 
-        if ((abs_change < abs_tol) | (rel_change < rel_tol)) {
+        if (are_all_close(pre_loglikelihood, post_loglikelihood, abs_tol = abs_tol, rel_tol =  rel_tol)) {
             break
         }
 
