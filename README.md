@@ -3,7 +3,7 @@
 
 Link to Github Repo: [https://github.com/Wangst224/hiperGLM](https://github.com/Wangst224/hiperGLM)
 
-Link to deployed website: []()
+Link to deployed website: [https://jhu-statprogramming-fall-2023.github.io/biostat777-project3-part1-Wangst224/](https://jhu-statprogramming-fall-2023.github.io/biostat777-project3-part1-Wangst224/)
 
 List of exported functions:
 1. `hiper_glm`: the model fitting function, return a hglm object.
