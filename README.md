@@ -10,7 +10,7 @@ List of exported functions:
 2. `coef`: extract coefficients from a hglm object.
 
 An example:
-```{r}
+```r
 hglm_linear = hiper_glm(X, y, model = "linear", option = list(mle_finder = "pseudo_inv"))
 coef(hglm_linear)
 ```
