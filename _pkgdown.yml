@@ -1,0 +1,23 @@
+url: ~
+template:
+    bootstrap: 5
+    theme: ayu-dark
+    bslib:
+        code-color: "#001d3d"
+
+navbar:
+    structure:
+        left:  [intro, articles]
+        right: [search, github, reference]
+    components:
+        github:
+            icon: fa-github
+            href: https://github.com/Wangst224/hiperGLM
+            aria-label: Github
+
+home:
+    links:
+        - text: About Me
+          href: https://wangst224.quarto.pub/project-1/
+        - text: Github Repo
+          href: https://github.com/Wangst224/hiperGLM

@@ -1,0 +1,113 @@
+---
+title: "Example Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example_Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tidyverse)
+library(hiperGLM)
+library(lubridate)
+library(purrr)
+```
+
+# 1. Introduction
+
+Through this analysis, we use one dataset from TidyTuesday to demonstrate some of the functions in the package `hiperGLM`. This [dataset](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-04-28) is about Broadway weekly grosses, including show titles, theaters, grosses, ticket prices, seat capacities and number of performances. We want to explore what factors could influence the percent of seats sold.
+
+```{r}
+data_url = "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-04-28/grosses.csv"
+filepath ="../data/grosses.csv"
+
+if (!dir.exists("../data")) dir.create("../data")
+if (!file.exists(filepath)) {
+    data = read.csv(data_url)
+    write.csv(data, file = filepath)
+}
+
+data_raw = read.csv(filepath)
+```
+
+# 2. Data Processing
+For the sake of simplicity, we only look at the top ten biggest theaters (selected using current day seat numbers). And we define an `oversold` variable when standing tickets are sold (seats sold percent greater than 1), which implies an exceptionally successful week of shows.
+
+```{r}
+data = data_raw %>%
+    select(week_ending, week_number, show, theatre, weekly_gross, avg_ticket_price, seats_in_theatre, pct_capacity) %>%
+    mutate(week_ending = ymd(week_ending))
+
+theaters_seats = data %>%
+    group_by(theatre) %>%
+    summarise(seats = max(seats_in_theatre), date = max(week_ending)) %>%
+    arrange(desc(date), desc(seats))
+
+data = data %>%
+    filter(theatre %in% theaters_seats$theatre[1:10])
+
+data$pct_capacity = map_vec(data$pct_capacity, as.numeric)
+data$oversold = map_lgl(data$pct_capacity, function(x) x>1)
+```
+
+# 3. Exploratory Analysis
+```{r, fig.height=6, fig.width=6}
+data %>% ggplot(aes(x = week_ending, y = weekly_gross)) +
+    geom_line(size = 0.5, alpha = 0.5) +
+    geom_smooth() +
+    labs(x = "Date", y = "Weekly Gross", title = "Trend of Weekly Gross",
+         subtitle = "Year: 1985-2020", caption = "Source: TidyTuesday, 2020.4.28")
+```
+
+```{r, fig.height=6, fig.width=6}
+data %>%
+    group_by(theatre, week_number) %>%
+    summarise(avg_pct_capacity = mean(pct_capacity)) %>%
+    ggplot(aes(x = week_number, y = avg_pct_capacity)) +
+    geom_bar(stat = "identity") +
+    facet_wrap(.~theatre) +
+    labs(x = "Week Number", y = "Seats Sold Percent", title = "Average Weekly Seats Sold Percent in One Year",
+         subtitle = "Averaged over years; stratified by theaters", caption = "Source: TidyTuesday, 2020.4.28")
+```
+
+```{r, fig.height=6, fig.width=6}
+data %>% ggplot(aes(x = avg_ticket_price)) +
+    geom_density(aes(fill = oversold), alpha = 0.5) +
+    labs(x = "Average Ticket Price", y = "Density", title = "Densities of Average Ticket Prices",
+         subtitle = "Stratified by oversold or not", caption = "Source: TidyTuesday, 2020.4.28")
+```
+
+# 4. Regression Analysis
+## 4.1 Linear model
+```{r}
+X = model.matrix(pct_capacity ~ week_ending + week_number + avg_ticket_price, data = data)
+
+hglm_linear = hiper_glm(X, data$pct_capacity, model = "linear", option = list(mle_finder = "pseudo_inv"))
+coef(hglm_linear)
+summary(lm(pct_capacity ~ week_ending + week_number + avg_ticket_price, data = data))
+```
+
+## 4.2 Logit model
+```{r}
+hglm_logit = hiper_glm(X, data$oversold, model = "logit", option = list(mle_finder = "newton"))
+coef(hglm_logit)
+summary(glm(oversold ~ week_ending + week_number + avg_ticket_price, family = "binomial", data = data))
+```
+
+# 5. Conclusion
+From the plots we don't see significant relations between seats sold percent and week number or average ticket price. Through regression, however, `week_ending`(date) and average ticket price are significant explanatory variables: the older the show and the higher the price, the higher the seats sold percent. We resort to `lm` and `glm` for p values because inference has not been implemented in the `hiperGLM` package.
+
+# 6. Functions Used
+1. `tidyverse`: `select`, `mutate`, `group_by`, `summarise`, `arrange`, `desc`, `filter`
+2. `lubridate`: `ymd`
+3. `purrr`: `map_vec`, `map_lgl`
+4. `ggplot2`: `geom_line`, `geom_smooth`, `geom_bar`, `geom_density`, `facet_wrap`
+5. `hiperGLM`: `hiper_glm`, `coef.hglm`
